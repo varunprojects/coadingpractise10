@@ -75,4 +75,17 @@ app.get('/states/', authenticationToken, async (request, response) => {
   const getstates = await database.all(getStatesquery)
   response.send(getstates.map(eachstate => convertStateDbObject(eachstate)))
 })
-module.exports=app;
+app.get('/states/:stateId/', authenticationToken, async (request, response) => {
+  const {stateId} = request.params
+  const getStateDetailsQuery = `select * from state where state_id = ${stateId};`
+  const getStateDetails = await database.get(getStateDetailsQuery)
+  response.send(convertStateDbObject(getStateDetails))
+})
+app.post('/districts/', authenticationToken, async (request, response) => {
+  const {districtName, stateId, cases, cured, active, deaths} = request.body
+  const createDistrictQuery = `insert into district(district_name,state_id,cases,cured,active,deaths) 
+  values('${districtName}',${stateId},${cases},${cured},${active},${deaths});`
+  const createDistrict = await database.run(createDistrictQuery)
+  response.send(`District Successfully Added`)
+})
+module.exports = app
